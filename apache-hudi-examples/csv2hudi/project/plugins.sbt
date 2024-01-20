@@ -1,0 +1,1 @@
+addSbtPlugin("ch.scalameta" % "sbt-scalafmt" % "2.5.2")
