@@ -1,6 +1,6 @@
 # How to run
 
-Copy paste the script and setup the below parameters in the AWS Glue Job Details section:
+Copy paste the script aws_glue_script.scala into AWS Glue editor and setup the below parameters in the AWS Glue Job Details section:
 
 1. Type: Spark
 2. Glue Version: Glue 4.0 - Supports spark 3.3, Scala 2, Ptyhon 3
