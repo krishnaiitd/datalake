@@ -1,6 +1,6 @@
 # How to run
 
-Copy paste the script [aws_glue_script.scala](https://github.com/krishnaiitd/datalake/blob/main/bootstrapping-data-lake-with-minimum-code/aws_glue_script.scala) into AWS Glue editor and setup the below parameters in the AWS Glue Job Details section:
+Copy and paste the script [aws_glue_script.scala](https://github.com/krishnaiitd/datalake/blob/main/bootstrapping-data-lake-with-minimum-code/aws_glue_script.scala) into AWS Glue editor and setup the below parameters in the AWS Glue Job Details section:
 
 1. Type: Spark
 2. Glue Version: Glue 4.0 - Supports spark 3.3, Scala 2, Python 3
@@ -27,4 +27,4 @@ For directly downloading and uploading to AWS S3: https://repo1.maven.org/maven2
 
 Download this one: hudi-spark3.3-bundle_2.12-0.14.1.jar
 
-Also, Adding the data I have used for this demostration i.e inside /data/employee.csv
+Also, Adding the data I have used for this demonstration i.e inside [/data/employee.csv](https://github.com/krishnaiitd/datalake/blob/main/data/employees.csv)
