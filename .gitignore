@@ -1,7 +1,5 @@
 # Compiled source #
 ###################
-*.vscode
-*.DS_Store
 *.com
 *.class
 *.dll
@@ -38,6 +36,8 @@
 Icon?
 ehthumbs.db
 Thumbs.db
+.vscode/*
+.DS_Store/*
 
 # JetBrains config files #
 ##########################
