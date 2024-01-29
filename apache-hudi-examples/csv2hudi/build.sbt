@@ -1,85 +1,30 @@
-import com.jsuereth.sbtpgp.PgpKeys
+ThisBuild / name := "Hudi-Ingestion"
 
-lazy val artifactSettings = Seq(
-  name := "sbt-spark",
-  startYear := Some(2017),
-  organization := "com.github.alonsodomin",
-  organizationName := "A. Alonso Dominguez",
-  description := "SBT plugin to start writing Spark apps quickly",
-  licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT")),
-  scmInfo := Some(ScmInfo(url("https://github.com/alonsodomin/sbt-spark"), "scm:git:git@github.com:alonsodomin/sbt-spark.git"))
-)
+ThisBuild / version := "0.1.0-SNAPSHOT"
 
-lazy val pluginSettings = Seq(
-  sbtPlugin := true,
-  crossSbtVersions := Seq("1.2.8", "0.13.18")
-)
+ThisBuild / scalaVersion := "2.12.18"
 
-lazy val pluginTestSettings = Seq(
-  scriptedLaunchOpts ++= Seq(
-    "-Xmx1024M",
-    "-XX:MaxPermSize=256M",
-    "-Dplugin.version=" + version.value
-  ),
-  scriptedBufferLog := false
-)
+val SparkVersion = "3.3.3"
 
-lazy val publishSettings = Seq(
-  publishMavenStyle := true,
-  publishArtifact in Test := false,
-  publishTo := Some(
-    if (isSnapshot.value) Opts.resolver.sonatypeSnapshots
-    else Opts.resolver.sonatypeStaging
-  ),
-  pomExtra :=
-    <url>https://github.com/alonsodomin/sbt-spark</url>
-      <developers>
-        <developer>
-          <id>alonsodomin</id>
-          <name>Antonio Alonso Dominguez</name>
-          <url>https://github.com/alonsodomin</url>
-        </developer>
-      </developers>
-)
+val HudiVersion = "0.14.1"
 
-lazy val releaseSettings = {
-  import ReleaseTransformations._
+val GlueVersion = "4.0.0"
 
-  Seq(
-    releaseCrossBuild := true,
-    releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-    releaseProcess := Seq[ReleaseStep](
-      checkSnapshotDependencies,
-      inquireVersions,
-      runClean,
-      releaseStepCommandAndRemaining("^ scripted"),
-      setReleaseVersion,
-      commitReleaseVersion,
-      tagRelease,
-      releaseStepCommandAndRemaining("^ publishSigned"),
-      setNextVersion,
-      commitNextVersion,
-      releaseStepCommand("sonatypeReleaseAll"),
-      pushChanges
+lazy val root= (project in file("."))
+  .settings(
+    resolvers += "aws-glue-etl-artifacts" at "https://aws-glue-etl-artifacts.s3.amazonaws.com/release/",
+    libraryDependencies ++= Seq(
+//      Apache Hudi dependency
+      "org.apache.hudi" %% "hudi-spark-bundle" % HudiVersion,
+//      AWS Hudi Dependency
+      "org.apache.hudi" % "hudi-aws-bundle" % HudiVersion % Provided,
+      "com.amazonaws" % "AWSGlueETL" % GlueVersion % Provided,
+
+//      Spark Dependency
+      "org.apache.spark" %% "spark-avro" % SparkVersion,
+      "org.apache.spark" %% "spark-core" % SparkVersion,
+      "org.apache.spark" %% "spark-sql" % SparkVersion,
+//      Test Dependency
+      "org.scalatest" %% "scalatest" % "3.2.15" % "test"
     )
-  )
-}
-
-lazy val allSettings = artifactSettings ++
-  pluginSettings ++
-  pluginTestSettings ++
-  publishSettings ++
-  releaseSettings
-
-lazy val `sbt-spark` = (project in file("."))
-  .settings(allSettings)
-  .enablePlugins(AutomateHeaderPlugin, SbtPlugin)
-  .settings(
-    moduleName := "sbt-spark"
-  )
-  .settings(
-    libraryDependencies += {
-      val currentSbtVersion = (sbtBinaryVersion in pluginCrossBuild).value
-      Defaults.sbtPluginExtra("com.eed3si9n" % "sbt-assembly" % "0.14.10", currentSbtVersion, scalaBinaryVersion.value)
-    }
   )
