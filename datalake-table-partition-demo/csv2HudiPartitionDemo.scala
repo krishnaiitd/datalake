@@ -3,7 +3,7 @@ import com.amazonaws.services.glue.util.{GlueArgParser, Job, JsonOptions}
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SaveMode
 import org.apache.spark.sql.functions._
-
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.{col, to_date}
 
@@ -15,22 +15,32 @@ import scala.collection.JavaConverters._
 
 object csv2HudiPartitionDemo {
 
-  def storeAsPartition(df:org.apache.spark.sql.DataFrame, partitionColumn:String, partitionFormat:String): Unit = {
-       
+  /**
+  * This code is only for demo, so I am writing everything in single scala object so 
+  * that it has minimum code to understand quickly, and anyway this is only for demo 
+  */
+  def huidLoad(df:DataFrame, 
+                partitionColumn:String, 
+                partitionFormat:String, 
+                destDbName:String,
+                hudiLoadS3Path: String, 
+                destTableName:String, 
+                recordkey:String): Unit = {
        val PartitionLabel:String = "_partition"
-        // Convert the exist column to timestamp which will be used for partitionColumn
-        df = df.withColumn(partitionColumn, to_timestamp(col(partitionColumn), "yyyy/MM/dd"))
+        // Convert the existing column to timestamp which will be used for table partitioning
+        // Used CSV file has yyyy/MM/dd date format column in partitionColumn as String so changes needed
+        var tdf = df.withColumn(partitionColumn, to_timestamp(col(partitionColumn), "yyyy/MM/dd"))
         
-        // assign the partiton column value to new Column with defined partition format
-        df = df.withColumn(PartitionLabel, date_format(col(partitionColumn), partitionFormat))
+        // Add new Column as partiton column
+        tdf = tdf.withColumn(PartitionLabel, date_format(col(partitionColumn), partitionFormat))
         
-        // make toLowerCase for all the columns
-        df = df.columns.foldLeft(df) { 
+        // Make toLowerCase for all the columns -> Optional
+        tdf = tdf.columns.foldLeft(tdf) { 
             (tmpDf, colName) => tmpDf.withColumnRenamed(colName, colName.toLowerCase)
         }
         
         val options = Map(
-          "hoodie.table.name" -> destinationTableName,
+          "hoodie.table.name" -> destTableName,
           "hoodie.datasource.write.storage.type" -> "COPY_ON_WRITE",
           "hoodie.datasource.write.operation" -> "upsert",
           "hoodie.datasource.write.recordkey.field" -> recordkey.toLowerCase,
@@ -38,22 +48,20 @@ object csv2HudiPartitionDemo {
           "hoodie.datasource.write.partitionpath.field" -> PartitionLabel,
           "hoodie.datasource.write.hive_style_partitioning" -> "true",
           "hoodie.datasource.hive_sync.enable" -> "true",
-          "hoodie.datasource.hive_sync.database" -> destinationDatabaseName,
-          "hoodie.datasource.hive_sync.table" -> destinationTableName,
+          "hoodie.datasource.hive_sync.database" -> destDbName,
+          "hoodie.datasource.hive_sync.table" -> destTableName,
           "hoodie.datasource.hive_sync.partition_fields" -> PartitionLabel,
           "hoodie.datasource.hive_sync.partition_extractor_class" -> "org.apache.hudi.hive.MultiPartKeysValueExtractor",
           "hoodie.datasource.hive_sync.use_jdbc" -> "false",
           "hoodie.datasource.hive_sync.mode" -> "hms",
         )
         
-        df.write.format("hudi")
+        tdf.write.format("hudi")
           .options(options)
           .mode(SaveMode.Overwrite)
-          .save(destinationS3Path)
+          .save(hudiLoadS3Path)
         
   }
-
-
 
   def main(sysArgs: Array[String]) = {
       
@@ -65,7 +73,6 @@ object csv2HudiPartitionDemo {
         sysArgs, 
         Seq(
             "JOB_NAME",
-            "temp.s3.path",
             "source.s3.path",
             "destination.s3.path",
             "destination.database.name",
@@ -83,35 +90,24 @@ object csv2HudiPartitionDemo {
     import sparkSession.implicits._
     
     Job.init(args("JOB_NAME"), glueContext, args.asJava)
-    
-    print(args)
-    
-    val sourceS3Path = args("source.s3.path")
-    val destinationS3Path = args("destination.s3.path")
-    val tempS3Path = args("temp.s3.path")
-    val destinationTableName = args("destination.table.name")
-    val destinationDatabaseName = args("destination.database.name")
-
+        
+    val csvSourceS3Path = args("source.s3.path")
+    val hudiLoadS3Path = args("destination.s3.path")
+    val destDbName = args("destination.database.name")
+    val destTableName = args("destination.table.name")
     val recordkey = args("record.key.column")
-    val partitionColumn = args("partition.column")
+    val partitionColumn = args("partition.column") // Should be DATE, DATETIME, TIMESTAMP
     val partitionFormat = args("partition.format")
-    
-    print("recordkey: " + recordkey)
-    print("partitionColumn: " +  partitionColumn)
-    print("partitionFormat: " + partitionFormat)
-    
+
     try {
       var df = sparkSession.read
             .option("header","true")
             .format("csv")
-            .load(sourceS3Path)
+            .load(csvSourceS3Path)
       
-      storeAsPartition(df, partitionColumn, partitionFormat)
-      
-      print(df.printSchema)      
-      print(df.show)
-      print(df.count())
-      
+      // Write into Apache Hudi table with partitionFormat as "yyyy", "yyyy-MM" and "yyyy-MM-dd"
+      huidLoad(df, partitionColumn, partitionFormat, destDbName, hudiLoadS3Path, destTableName, recordkey)
+
       Job.commit()
     } finally {
       spark.stop()
