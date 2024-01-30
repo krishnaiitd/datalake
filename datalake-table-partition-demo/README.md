@@ -32,4 +32,13 @@ Also, Adding the data I have used for this demonstration i.e inside [/data/emplo
 
 
 ## Experiments 
-Try with different parameters of _partition format along with destination table name and S3 storage path and then create multiple table to Query on AWS Athena with various where clause on partition column, without partition to visualized the data retrieval details in Query Stats of AWS Athena.
+Try with different parameters of _partition format along with destination table name and S3 storage path and then create multiple table to Query on AWS Athena with various where clause on partition column, without partition column to visualized the data retrieval details in Query Stats of AWS Athena.
+
+### Query with partititon column in where clause:
+   -- Query with Partition Column 
+   select * from "yearly_partition_employe" where _partition='2023'
+[Query Stats](/dta/queryOnePartitionWithPartitionColumn.png)
+
+### Query with partititon column in where clause:
+   -- Query without Partition Column 
+   select * from "yearly_partition_employe" where YEAR(FROM_UNIXTIME(hire_date/1000000)) = 2023
