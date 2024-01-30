@@ -31,4 +31,5 @@ Download this one: hudi-spark3.3-bundle_2.12-0.14.1.jar
 Also, Adding the data I have used for this demonstration i.e inside [/data/employee.csv](https://github.com/krishnaiitd/datalake/blob/main/data/employees.csv)
 
 
-## Experiments with different parameters of _partition format along with destination table name and S3 storage path and then create multiple table to Query on AWS Athena with various where clause on partition column, without partition to visualized the data retrieval details in Query Stats of AWS Athena.
+## Experiments 
+Try with different parameters of _partition format along with destination table name and S3 storage path and then create multiple table to Query on AWS Athena with various where clause on partition column, without partition to visualized the data retrieval details in Query Stats of AWS Athena.
