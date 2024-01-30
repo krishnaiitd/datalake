@@ -1,6 +1,6 @@
 # How to run
 
-You can Copy and Paste the script [csv2HudiPartitionDemo.scala](https://github.com/krishnaiitd/datalake/blob/main/datalake-table-partition-demo/csv2HudiPartitionDemo.scala) into your AWS Glue editor and setup the Glue job with the below parameters in the AWS Glue Job Details section:
+You can Copy and Paste the script [csv2HudiPartitionDemo.scala](datalake-table-partition-demo/csv2HudiPartitionDemo.scala) into your AWS Glue editor and setup the Glue job with the below parameters in the AWS Glue Job Details section:
 
 1. Type: Spark
 2. Glue Version: Glue 4.0 - Supports spark 3.3, Scala 2, Python 3
@@ -18,7 +18,8 @@ You can Copy and Paste the script [csv2HudiPartitionDemo.scala](https://github.c
    8. `--record.key.column`   EMPLOYEE_ID
    9. `--source.s3.path`  s3://<your_s3_data_bucket>/employees.csv
 
-![AWS Glue Job parameters](data/csv2HudiPartitionDemoParameters.png)
+![AWS Glue Job parameters](/data/csv2HudiPartitionDemoParameters.png)
+
 ## Link to get the dependent jar which required to pass on the AWS Glue Dependent jars path
 
 For Sbt dependency: https://mvnrepository.com/artifact/org.apache.hudi/hudi-spark3.3-bundle_2.12/0.14.0
