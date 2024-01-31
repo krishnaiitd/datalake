@@ -47,11 +47,11 @@ object csv2HudiPartitionDemo {
           "hoodie.datasource.write.precombine.field" -> recordkey.toLowerCase,
           "hoodie.datasource.write.partitionpath.field" -> PartitionLabel,
           "hoodie.datasource.write.hive_style_partitioning" -> "true",
+          "hoodie.datasource.hive_sync.partition_fields" -> PartitionLabel,
+          "hoodie.datasource.hive_sync.partition_extractor_class" -> "org.apache.hudi.hive.MultiPartKeysValueExtractor",
           "hoodie.datasource.hive_sync.enable" -> "true",
           "hoodie.datasource.hive_sync.database" -> destDbName,
           "hoodie.datasource.hive_sync.table" -> destTableName,
-          "hoodie.datasource.hive_sync.partition_fields" -> PartitionLabel,
-          "hoodie.datasource.hive_sync.partition_extractor_class" -> "org.apache.hudi.hive.MultiPartKeysValueExtractor",
           "hoodie.datasource.hive_sync.use_jdbc" -> "false",
           "hoodie.datasource.hive_sync.mode" -> "hms",
         )
