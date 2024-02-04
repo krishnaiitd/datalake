@@ -42,3 +42,4 @@ Try with different parameters of _partition format along with destination table 
 ### Query with partititon column in where clause:
    -- Query without Partition Column 
    select * from "yearly_partition_employe" where YEAR(FROM_UNIXTIME(hire_date/1000000)) = 2023
+[Query Stats](/dta/queryDataWithoutPartitionColumn.png)
