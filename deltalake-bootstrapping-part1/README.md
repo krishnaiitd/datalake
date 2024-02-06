@@ -70,7 +70,8 @@ Let's see the above write on the directory: /tmp/delta-table1
         |  7|
         |  9|
         +---+
- <!-- Updates or merge on exiting table-->
+
+ ### Updates or merge on exiting table
 
     val deltaTable = DeltaTable.forPath("/tmp/delta-table1")
 
@@ -133,11 +134,81 @@ Read the previous version
         |  9|
         +---+
 
+### Start steaming
     val streamingDf = spark.readStream.format("rate").load()
 
 
     val stream = streamingDf.select($"value" as "id").writeStream.format("delta").option("checkpointLocation", "/tmp/checkpoint").start("/tmp/delta-table1")
 
+
+### While streaming write on the table we can read it as below:
+    
+    scala> val df = spark.read.format("delta").load("/tmp/delta-table1")
+    df: org.apache.spark.sql.DataFrame = [id: bigint]
+
+    scala> df.show
+    +---+
+    | id|
+    +---+
+    | 32|
+    | 17|
+    |  9|
+    | 41|
+    | 49|
+    | 36|
+    | 12|
+    |  3|
+    | 22|
+    | 24|
+    | 25|
+    | 35|
+    | 11|
+    | 19|
+    | 44|
+    |  4|
+    | 46|
+    | 27|
+    | 40|
+    | 29|
+    +---+
+    only showing top 20 rows
+
+### Stop the steaming 
+    scala> stream.stop()
+
+### After streaming stop, try reading again 
+
+    scala> val df = spark.read.format("delta").load("/tmp/delta-table1")
+    df: org.apache.spark.sql.DataFrame = [id: bigint]
+
+    scala> stream.stop()
+
+    scala> df.show
+    +---+
+    | id|
+    +---+
+    | 32|
+    | 17|
+    |  9|
+    | 41|
+    | 57|
+    | 49|
+    | 36|
+    | 12|
+    |  3|
+    | 54|
+    | 22|
+    | 24|
+    | 25|
+    | 35|
+    | 60|
+    | 53|
+    | 11|
+    | 19|
+    | 56|
+    | 63|
+    +---+
+    only showing top 20 rows
 
 
 #### Will try later
