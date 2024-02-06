@@ -1,6 +1,6 @@
 # Getting Start with Delta lake
 
-Install Apache Version 3.5
+Install Apache Spark Version 3.5
 
 ## Spark 3.5
 
