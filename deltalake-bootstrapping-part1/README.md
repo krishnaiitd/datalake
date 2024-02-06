@@ -6,16 +6,14 @@ Install Apache Version 3.5
 
 ### Start the spark-shell as below
 
-spark-shell \
- --packages io.delta:delta-spark_2.12:3.1.0 \
- --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" \
- --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"
+    spark-shell \
+    --packages io.delta:delta-spark_2.12:3.1.0 \
+    --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" \
+    --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"
 
 ### On the spark shell:
 
 Below steps are followed from: https://docs.delta.io/3.1.0/quick-start.html#language-scala
-
-
 
     import io.delta.tables._
     import org.apache.spark.sql.functions._
@@ -48,22 +46,102 @@ Let's see the above write on the directory: /tmp/delta-table1
 
 ![And the structure as below in the screenshot](/data/deltalake-bootstrapping-part1/bootstrapping-deltalake-part1.png)
 
+# try reading above overwritten data as delta read from spark
+
+    val df = spark.read.format("delta").load("/tmp/delta-table1")
+
+    df.show
+
+        df: org.apache.spark.sql.DataFrame = [id: bigint]
+
+        scala> df.printSchema
+        root
+        |-- id: long (nullable = true)
+
+
+        scala> df.show
+        +---+
+        | id|
+        +---+
+        |  5|
+        |  6|
+        |  8|
+        |  7|
+        |  9|
+        +---+
+ <!-- Updates or merge on exiting table-->
+
+val deltaTable = DeltaTable.forPath("/tmp/delta-table1")
+
+val newData = spark.range(0, 20).toDF
+
+deltaTable.as("oldData")
+  .merge(
+    newData.as("newData"),
+    "oldData.id = newData.id")
+  .whenMatched
+  .update(Map("id" -> col("newData.id")))
+  .whenNotMatched
+  .insert(Map("id" -> col("newData.id")))
+  .execute()
+
+val df = spark.read.format("delta").load("/tmp/delta-table1")
+        df: org.apache.spark.sql.DataFrame = [id: bigint]
+
+        scala> df.show
+        +---+
+        | id|
+        +---+
+        |  0|
+        |  1|
+        |  2|
+        |  3|
+        |  4|
+        |  5|
+        |  6|
+        |  7|
+        |  8|
+        |  9|
+        | 10|
+        | 11|
+        | 12|
+        | 13|
+        | 14|
+        | 15|
+        | 16|
+        | 17|
+        | 18|
+        | 19|
+        +---+
+
+
+Read the previous version
+
+    val df = spark.read.format("delta").option("versionAsOf", 0).load("/tmp/delta-table1")
+
+        df: org.apache.spark.sql.DataFrame = [id: bigint]
+
+        scala> df.show
+        +---+
+        | id|
+        +---+
+        |  5|
+        |  6|
+        |  8|
+        |  7|
+        |  9|
+        +---+
+
+    val streamingDf = spark.readStream.format("rate").load()
+
+
+    val stream = streamingDf.select($"value" as "id").writeStream.format("delta").option("checkpointLocation", "/tmp/checkpoint").start("/tmp/delta-table1")
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-val columns = Seq("id","name", "created_at")
-val data = Seq(("1", "Krishna", "2024/01/01"), ("2", "Prasad", "2024/02/20"), ("3", "Veena", "2024/03/25"), ("4", "Krishvi", "2024/02/12"))
-val rdd = spark.sparkContext.parallelize(data)
-var df = rdd.toDF(columns:_*)
-df.show
+#### will try later
+    val columns = Seq("id","name", "created_at")
+    val data = Seq(("1", "Krishna", "2024/01/01"), ("2", "Prasad", "2024/02/20"), ("3", "Veena", "2024/03/25"), ("4", "Krishvi", "2024/02/12"))
+    val rdd = spark.sparkContext.parallelize(data)
+    var df = rdd.toDF(columns:_*)
+    df.show
