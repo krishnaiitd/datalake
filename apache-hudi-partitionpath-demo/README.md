@@ -187,3 +187,6 @@ HLD:
 LLD:
 ![LLD](/data/apache-hudi-partitionpath-demo/ApacheHudiPartitionDemo.png)
 
+
+##### Reading Apache Hudi Table
+val table = spark.read.format("hudi").load("file:///Users/krishna/Downloads/hudidb/yearly_partiiton_data_demo")
