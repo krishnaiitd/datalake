@@ -33,6 +33,7 @@ Below steps are followed from: https://docs.delta.io/3.1.0/quick-start.html#lang
     data1.write.format("delta").mode("overwrite").save("/tmp/delta-table1")
 
 Let's see the above write on the directory: /tmp/delta-table1
+
     ➜  delta-table1 tree
     .
     ├── _delta_log
@@ -46,7 +47,7 @@ Let's see the above write on the directory: /tmp/delta-table1
 
 ![And the structure as below in the screenshot](/data/deltalake-bootstrapping-part1/bootstrapping-deltalake-part1.png)
 
-# try reading above overwritten data as delta read from spark
+## Try reading above overwritten data as delta read from spark
 
     val df = spark.read.format("delta").load("/tmp/delta-table1")
 
@@ -71,21 +72,21 @@ Let's see the above write on the directory: /tmp/delta-table1
         +---+
  <!-- Updates or merge on exiting table-->
 
-val deltaTable = DeltaTable.forPath("/tmp/delta-table1")
+    val deltaTable = DeltaTable.forPath("/tmp/delta-table1")
 
-val newData = spark.range(0, 20).toDF
+    val newData = spark.range(0, 20).toDF
 
-deltaTable.as("oldData")
-  .merge(
-    newData.as("newData"),
-    "oldData.id = newData.id")
-  .whenMatched
-  .update(Map("id" -> col("newData.id")))
-  .whenNotMatched
-  .insert(Map("id" -> col("newData.id")))
-  .execute()
+    deltaTable.as("oldData")
+    .merge(
+        newData.as("newData"),
+        "oldData.id = newData.id")
+    .whenMatched
+    .update(Map("id" -> col("newData.id")))
+    .whenNotMatched
+    .insert(Map("id" -> col("newData.id")))
+    .execute()
 
-val df = spark.read.format("delta").load("/tmp/delta-table1")
+    val df = spark.read.format("delta").load("/tmp/delta-table1")
         df: org.apache.spark.sql.DataFrame = [id: bigint]
 
         scala> df.show
@@ -139,7 +140,7 @@ Read the previous version
 
 
 
-#### will try later
+#### Will try later
     val columns = Seq("id","name", "created_at")
     val data = Seq(("1", "Krishna", "2024/01/01"), ("2", "Prasad", "2024/02/20"), ("3", "Veena", "2024/03/25"), ("4", "Krishvi", "2024/02/12"))
     val rdd = spark.sparkContext.parallelize(data)
