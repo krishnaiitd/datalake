@@ -1,10 +1,12 @@
 package local
 
 import org.apache.spark.sql.SparkSession
+import org.apache.log4j.{Level, Logger}
 
 object Main {
   def main(args: Array[String]): Unit = {
 
+    Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
     // @todo: Need to pass this in the sparkSession config, not one by one
     val sparkConf = Map(
       "spark.serializer" -> "org.apache.spark.serializer.KryoSerializer",
@@ -22,6 +24,8 @@ object Main {
       .config("spark.kryo.registrator", "org.apache.spark.HoodieSparkKryoRegistrar")
       .getOrCreate()
 
+    spark.sparkContext.setLogLevel(Level.WARN.toString)
+
     import org.apache.spark.sql.functions._
     import spark.sqlContext.implicits._
     val data = Seq(("1", "Prasad", 32), ("2", "Singh", 3), ("3", "Kumar", 76), ("4", "Prasad", 13))
@@ -33,7 +37,7 @@ object Main {
 
     val partitionLabel = "_partition"
 //    add partitin column "_partition", only two partition as of now, i.e % 2 on age
-    val df2 = df.withColumn("_partition", when(col("age") % 2 === 0, "even").otherwise("old"))
+    val df2 = df.withColumn(partitionLabel, when(col("age") % 2 === 0, "even").otherwise("old"))
     print("Getting the data from partitioned data frame")
     df2.printSchema()
     df2.show()
@@ -93,7 +97,6 @@ object Main {
     morTable.select(columnNames.map(c => col(c)) :_*).show(truncate = false)
 
 //    @todo: Trying reading different type table read concepts like incremental, snapshot, time travel etc.
-    
 
   }
 }
