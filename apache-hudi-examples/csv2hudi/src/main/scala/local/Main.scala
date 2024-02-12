@@ -76,5 +76,24 @@ object Main {
       .options(morHudiOption)
       .mode("append")
       .save(basePathMoR)
+
+    // Reading Apache Hudi table
+    println("Reading Apache Hudi table")
+    val columnNames = Seq("_hoodie_partition_path", "_hoodie_file_name", "age", partitionLabel)
+
+//    CoW
+    println("CoW")
+    val cowTable = spark.read.format("hudi")
+      .load(basePathCoW)
+//    cowTable.select(col("_hoodie_partition_path"), col(partitionLabel)).show(truncate = false)
+    cowTable.select(columnNames.map(c => col(c)) :_*).show(truncate = false)
+//    MoR
+    println("MoR")
+    val morTable = spark.read.format("hudi").load(basePathMoR)
+    morTable.select(columnNames.map(c => col(c)) :_*).show(truncate = false)
+
+//    @todo: Trying reading different type table read concepts like incremental, snapshot, time travel etc.
+    
+
   }
 }
