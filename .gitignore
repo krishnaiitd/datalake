@@ -104,4 +104,13 @@ apache-hudi-examples/csv2hudi/project/target/*
 apache-hudi-examples/csv2hudi/.bsp/*
 
 
+spark-demo/target/*
+spark-demo/project/target/*
+spark-demo/.bsp
+spark-demo/.bsp/*
+spark-demo/data/example1_output/*
+spark-demo/data/output/*
+spark-demo/data/output/
+
+
 .vscode/
