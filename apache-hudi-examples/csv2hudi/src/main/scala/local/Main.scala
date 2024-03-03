@@ -7,7 +7,6 @@ object Main {
   def main(args: Array[String]): Unit = {
 
     Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
-    // @todo: Need to pass this in the sparkSession config, not one by one
     val sparkConf = Map(
       "spark.serializer" -> "org.apache.spark.serializer.KryoSerializer",
       "spark.sql.catalog.spark_catalog" -> "org.apache.spark.sql.hudi.catalog.HoodieCatalog",
