@@ -15,13 +15,11 @@ object Main {
       "spark.kryo.registrator" -> "org.apache.spark.HoodieSparkKryoRegistrar"
     )
 
-    val spark: SparkSession = SparkSession.builder()
+    val spark: SparkSession = sparkConf.foldLeft(SparkSession.builder()) { (builder, cfg) =>
+      builder.config(cfg._1, cfg._2)
+    }
       .master("local[*]")
-      .appName("TestingSparkOnlyLocally")
-      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.hudi.catalog.HoodieCatalog")
-      .config("spark.sql.extensions", "org.apache.spark.sql.hudi.HoodieSparkSessionExtension")
-      .config("spark.kryo.registrator", "org.apache.spark.HoodieSparkKryoRegistrar")
+      .appName("MultipleTableTest")
       .getOrCreate()
 
     spark.sparkContext.setLogLevel(Level.WARN.toString)
