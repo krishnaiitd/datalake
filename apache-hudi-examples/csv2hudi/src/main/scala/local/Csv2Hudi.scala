@@ -9,7 +9,7 @@ object Csv2Hudi {
   def main(args: Array[String]): Unit = {
 
     Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
-    // @todo: Need to pass this in the sparkSession config, not one by one
+
     val sparkConf = Map(
       "spark.serializer" -> "org.apache.spark.serializer.KryoSerializer",
       "spark.sql.catalog.spark_catalog" -> "org.apache.spark.sql.hudi.catalog.HoodieCatalog",
@@ -17,13 +17,11 @@ object Csv2Hudi {
       "spark.kryo.registrator" -> "org.apache.spark.HoodieSparkKryoRegistrar"
     )
 
-    val spark: SparkSession = SparkSession.builder()
-      .master("local[*]")
+    val spark: SparkSession =  sparkConf.foldLeft(SparkSession.builder()) {
+      (builder, cfg) => builder
+        .config(cfg._1, cfg._2)
+    }.master("local[*]")
       .appName("CSV2HudiLocal")
-      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.hudi.catalog.HoodieCatalog")
-      .config("spark.sql.extensions", "org.apache.spark.sql.hudi.HoodieSparkSessionExtension")
-      .config("spark.kryo.registrator", "org.apache.spark.HoodieSparkKryoRegistrar")
       .getOrCreate()
 
     Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
