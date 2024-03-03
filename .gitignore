@@ -114,6 +114,18 @@ spark-demo/data/output/
 
 spark-java-demo/data/output/
 spark-java-demo/data/output/*
+spark-java-demo/data/output/*
+
+apache-spark-hudi-demo/target/*
+apache-spark-hudi-demo/project/target/*
+apache-spark-hudi-demo/.bsp
+apache-spark-hudi-demo/.bsp/*
+apache-spark-hudi-demo/data/example1_output/*
+apache-spark-hudi-demo/data/output/*
+apache-spark-hudi-demo/data/output/
+apache-spark-hudi-demo/.bsp/
 
 
+*.bsp*
+*.idea*
 .vscode/
