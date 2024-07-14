@@ -10,7 +10,7 @@
     version >= 3.3.1
 
 
-## To Compile
+## To Compile & Create Fat jar 
     mvn clean install
 
 
