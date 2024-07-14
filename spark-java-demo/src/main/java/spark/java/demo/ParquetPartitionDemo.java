@@ -39,9 +39,7 @@ public class ParquetPartitionDemo {
         String parquetPath = "./data/output/parquets/example";
         resultDf
                 .write()
-                .mode(SaveMode.Overwrite)
-                .format("postgre")
-                .csv(parquetPath);
+                .mode(SaveMode.Overwrite).parquet(parquetPath);
 
         // Let's read it
         Dataset<Row> parquetDF = spark.read().parquet(parquetPath);
