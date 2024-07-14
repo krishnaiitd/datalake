@@ -9,3 +9,8 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql" % "3.1.2"
 )
 
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case PathList("application.conf") => MergeStrategy.concat
+  case x => MergeStrategy.first
+}
